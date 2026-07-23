@@ -114,7 +114,7 @@ def send_email_with_plots(plot_paths, current_drawdown):
     else:
         signal_line = "HOLD"
 
-    body_text = (f"Signal: {signal_line}\n\n")
+    body_text = (f"{signal_line}\n\n")
 
     msg = MIMEMultipart()
     msg["Subject"] = f"Monthly S&P 500 Report -- {signal_line}"

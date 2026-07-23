@@ -1,8 +1,8 @@
 name: Monthly S&P 500 Report
 on:
   schedule:
-    - cron: "0 9 1 * *"  # 9am UTC on the 1st of every month
-  workflow_dispatch: {}   # lets you trigger it manually too
+    - cron: "0 9 1 * *"
+  workflow_dispatch: {}
 
 jobs:
   run-report:
@@ -15,4 +15,4 @@ jobs:
       - run: pip install yfinance pandas matplotlib numpy
       - run: python sp500_report.py
         env:
-          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_APP_PASSWORD: ${{ secrets.GOOGLEPASSKEY }}

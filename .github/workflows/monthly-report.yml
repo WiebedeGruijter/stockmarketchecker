@@ -1,0 +1,18 @@
+name: Monthly S&P 500 Report
+on:
+  schedule:
+    - cron: "0 9 1 * *"  # 9am UTC on the 1st of every month
+  workflow_dispatch: {}   # lets you trigger it manually too
+
+jobs:
+  run-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install yfinance pandas matplotlib numpy
+      - run: python sp500_report.py
+        env:
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}

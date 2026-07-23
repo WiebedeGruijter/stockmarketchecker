@@ -114,13 +114,7 @@ def send_email_with_plots(plot_paths, current_drawdown):
     else:
         signal_line = "HOLD"
 
-    body_text = (
-        f"Current drawdown from all-time high: {current_drawdown:.2f}%\n"
-        f"Threshold for a buy signal: {BUY_SIGNAL_DRAWDOWN_THRESHOLD:.2f}%\n\n"
-        f"Signal: {signal_line}\n\n"
-        "(Novelty indicator based on a single metric -- not financial advice.)\n\n"
-        "Attached: this month's S&P 500 plots."
-    )
+    body_text = (f"Signal: {signal_line}\n\n")
 
     msg = MIMEMultipart()
     msg["Subject"] = f"Monthly S&P 500 Report -- {signal_line}"

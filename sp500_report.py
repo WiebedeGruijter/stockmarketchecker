@@ -13,9 +13,10 @@ import matplotlib.pyplot as plt
 
 
 # --- Config ---
-SENDER_EMAIL = "wiebedg@gmail.com"       # your Gmail address
-RECIPIENT_EMAIL = "wiebedg@gmail.com"    # where to send the report
+SENDER_EMAIL = "wiebedg@gmail.com"           # your Gmail address
+RECIPIENT_EMAIL = "wiebedg@gmail.com"        # where to send the report
 INCLUDE_DIVIDENDS = True                     # use Adj Close (dividends reinvested) vs raw Close
+BUY_SIGNAL_DRAWDOWN_THRESHOLD = -20.0        # trigger "BUY BUY BUY" if current drawdown is worse than this (%)
 
 
 def download_data():
@@ -101,16 +102,31 @@ def make_plots(combined):
     plt.close()
     plot_paths.append(path)
 
-    return plot_paths
+    current_drawdown = drawdown.iloc[-1]  # most recent value, i.e. today's drawdown from peak
+
+    return plot_paths, current_drawdown
 
 
-def send_email_with_plots(plot_paths):
+def send_email_with_plots(plot_paths, current_drawdown):
     """Send the generated plots as email attachments via Gmail SMTP (app password auth)."""
+    if current_drawdown <= BUY_SIGNAL_DRAWDOWN_THRESHOLD:
+        signal_line = "BUY BUY BUY"
+    else:
+        signal_line = "HOLD"
+
+    body_text = (
+        f"Current drawdown from all-time high: {current_drawdown:.2f}%\n"
+        f"Threshold for a buy signal: {BUY_SIGNAL_DRAWDOWN_THRESHOLD:.2f}%\n\n"
+        f"Signal: {signal_line}\n\n"
+        "(Novelty indicator based on a single metric -- not financial advice.)\n\n"
+        "Attached: this month's S&P 500 plots."
+    )
+
     msg = MIMEMultipart()
-    msg["Subject"] = "Monthly S&P 500 Report"
+    msg["Subject"] = f"Monthly S&P 500 Report -- {signal_line}"
     msg["From"] = SENDER_EMAIL
     msg["To"] = RECIPIENT_EMAIL
-    msg.attach(MIMEText("Attached: this month's S&P 500 plots.", "plain"))
+    msg.attach(MIMEText(body_text, "plain"))
 
     for path in plot_paths:
         if os.path.exists(path):
@@ -131,5 +147,5 @@ if __name__ == "__main__":
     print(f"Data range: {combined['Date'].min().date()} to {combined['Date'].max().date()}")
     print(f"Total trading days: {len(combined)}")
 
-    plots = make_plots(combined)
-    send_email_with_plots(plots)
+    plots, current_drawdown = make_plots(combined)
+    send_email_with_plots(plots, current_drawdown)

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 SENDER_EMAIL = "wiebedg@gmail.com"           # your Gmail address
 RECIPIENT_EMAIL = "wiebedg@gmail.com"        # where to send the report
 INCLUDE_DIVIDENDS = True                     # use Adj Close (dividends reinvested) vs raw Close
-BUY_SIGNAL_DRAWDOWN_THRESHOLD = -20.0        # trigger "BUY BUY BUY" if current drawdown is worse than this (%)
+BUY_SIGNAL_DRAWDOWN_THRESHOLD = -15.0        # trigger "BUY BUY BUY" if current drawdown is worse than this (%)
 
 
 def download_data():

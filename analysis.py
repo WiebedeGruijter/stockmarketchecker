@@ -120,7 +120,7 @@ def send_email_with_plots(plot_paths):
                 msg.attach(img)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(SENDER_EMAIL, os.environ["EMAIL_APP_PASSWORD"])
+        server.login(SENDER_EMAIL, os.environ["GOOGLEPASSKEY"])
         server.send_message(msg)
 
     print("Email sent.")

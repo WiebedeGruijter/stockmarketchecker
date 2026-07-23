@@ -102,40 +102,30 @@ plt.savefig(f"sp500_drawdown_analysis{suffix_file}.png", dpi=150)
 plt.show()
 
 #%%
+import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
-import os
 
-def send_email_with_plots(sender_email, sender_password, recipient_email, plot_paths):
+SENDER_EMAIL = "youraddress@gmail.com"
+RECIPIENT_EMAIL = "youraddress@gmail.com"
+
+def send_email_with_plots(plot_paths):
     msg = MIMEMultipart()
     msg["Subject"] = "Monthly S&P 500 Report"
-    msg["From"] = sender_email
-    msg["To"] = recipient_email
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = RECIPIENT_EMAIL
     msg.attach(MIMEText("Attached: this month's S&P 500 plots.", "plain"))
 
     for path in plot_paths:
-        if os.path.exists(path):
-            with open(path, "rb") as f:
-                img = MIMEImage(f.read())
-                img.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
-                msg.attach(img)
+        with open(path, "rb") as f:
+            img = MIMEImage(f.read())
+            img.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
+            msg.attach(img)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(sender_email, sender_password)
+        server.login(SENDER_EMAIL, os.environ["EMAIL_APP_PASSWORD"])
         server.send_message(msg)
 
     print("Email sent.")
-
-# Call after all your plots have been saved
-send_email_with_plots(
-    sender_email="wiebedg@gmail.com",
-    sender_password=os.environ["EMAIL_APP_PASSWORD"],  # never hardcode this
-    recipient_email="wiebedg@gmail.com",
-    plot_paths=[
-        "sp500_daily_pct_change.png",
-        "sp500_rolling_volatility.png",
-        "sp500_drawdown_analysis_div.png",
-    ],
-)

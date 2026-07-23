@@ -1,7 +1,7 @@
 name: Monthly S&P 500 Report
 on:
   schedule:
-    - cron: "0 9 1 * *"
+    - cron: "0 9 1 */3 *"
   workflow_dispatch: {}
 
 jobs:

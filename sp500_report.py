@@ -11,41 +11,44 @@ import matplotlib
 matplotlib.use("Agg")  # no display needed when run headlessly (e.g. in GitHub Actions)
 import matplotlib.pyplot as plt
 
-
 # --- Config ---
-SENDER_EMAIL = "wiebedg@gmail.com"           # your Gmail address
-RECIPIENT_EMAIL = "wiebedg@gmail.com"        # where to send the report
-INCLUDE_DIVIDENDS = True                     # use Adj Close (dividends reinvested) vs raw Close
-BUY_SIGNAL_DRAWDOWN_THRESHOLD = -20.0        # trigger "BUY BUY BUY" if current drawdown is worse than this (%)
+SENDER_EMAIL = "wiebedg@gmail.com"
+RECIPIENT_EMAIL = "wiebedg@gmail.com"
+INCLUDE_DIVIDENDS = True
+BUY_SIGNAL_DRAWDOWN_THRESHOLD = -20.0
+
+# Choose your preferred MSCI World ticker here:
+TICKER = "URTH"  # Or 'IWDA.L', 'SWDA.L', 'EUNL.DE'
+INDEX_NAME = "MSCI World"
 
 
 def download_data():
-    """Download the full available history of the S&P 500 index from Yahoo Finance."""
-    sp500 = yf.download("^GSPC", start="1900-01-01", auto_adjust=False)
+    """Download historical data for the MSCI World Index / ETF from Yahoo Finance."""
+    msci = yf.download(TICKER, start="1900-01-01", auto_adjust=False)
 
-    # yfinance sometimes returns MultiIndex columns (ticker, field) -- flatten if so
-    if isinstance(sp500.columns, pd.MultiIndex):
-        sp500.columns = sp500.columns.get_level_values(0)
+    # Flatten MultiIndex columns if present
+    if isinstance(msci.columns, pd.MultiIndex):
+        msci.columns = msci.columns.get_level_values(0)
 
-    sp500 = sp500.reset_index().sort_values("Date").reset_index(drop=True)
-    sp500["Change %"] = sp500["Close"].pct_change() * 100
-    return sp500
+    msci = msci.reset_index().sort_values("Date").reset_index(drop=True)
+    msci["Change %"] = msci["Close"].pct_change() * 100
+    return msci
 
 
 def make_plots(combined):
-    """Generate the daily % change, rolling volatility, and drawdown/duration plots."""
+    """Generate daily % change, rolling volatility, and drawdown/duration plots."""
     plot_paths = []
 
     # --- Daily % change ---
     plt.figure(figsize=(12, 6))
     plt.plot(combined["Date"], combined["Change %"], linewidth=0.5)
     plt.axhline(0, color="gray", linewidth=0.8, linestyle="--")
-    plt.title("S&P 500 Daily Percentage Change")
+    plt.title(f"{INDEX_NAME} ({TICKER}) Daily Percentage Change")
     plt.xlabel("Date")
     plt.ylabel("Change (%)")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    path = "sp500_daily_pct_change.png"
+    path = f"{TICKER.lower()}_daily_pct_change.png"
     plt.savefig(path, dpi=150)
     plt.close()
     plot_paths.append(path)
@@ -57,12 +60,12 @@ def make_plots(combined):
 
     plt.figure(figsize=(12, 6))
     plt.plot(rolling_vol.index, rolling_vol.values, linewidth=1, color="darkorange")
-    plt.title(f"S&P 500 Rolling {window_days}-Day (~3-Month) Volatility")
+    plt.title(f"{INDEX_NAME} ({TICKER}) Rolling {window_days}-Day (~3-Month) Volatility")
     plt.xlabel("Date")
     plt.ylabel("Rolling Std Dev (%)")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    path = "sp500_rolling_volatility.png"
+    path = f"{TICKER.lower()}_rolling_volatility.png"
     plt.savefig(path, dpi=150)
     plt.close()
     plot_paths.append(path)
@@ -78,12 +81,12 @@ def make_plots(combined):
     groups = at_new_high.cumsum()
     drawdown_duration = days_since_high.groupby(groups).cumsum()
 
-    label_suffix = " (Total Return, Dividends Reinvested)" if INCLUDE_DIVIDENDS else " (Price Only)"
+    label_suffix = " (Total Return)" if INCLUDE_DIVIDENDS else " (Price Only)"
 
     fig, axes = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
 
     axes[0].plot(price.index, price.values, linewidth=1, color="steelblue")
-    axes[0].set_title(f"S&P 500{label_suffix}")
+    axes[0].set_title(f"{INDEX_NAME} ({TICKER}){label_suffix}")
     axes[0].set_yscale("log")
     axes[0].grid(True, alpha=0.3)
 
@@ -97,27 +100,22 @@ def make_plots(combined):
 
     plt.tight_layout()
     suffix_file = "_div" if INCLUDE_DIVIDENDS else "_nodiv"
-    path = f"sp500_drawdown_analysis{suffix_file}.png"
+    path = f"{TICKER.lower()}_drawdown_analysis{suffix_file}.png"
     plt.savefig(path, dpi=150)
     plt.close()
     plot_paths.append(path)
 
-    current_drawdown = drawdown.iloc[-1]  # most recent value, i.e. today's drawdown from peak
-
+    current_drawdown = drawdown.iloc[-1]
     return plot_paths, current_drawdown
 
 
 def send_email_with_plots(plot_paths, current_drawdown):
-    """Send the generated plots as email attachments via Gmail SMTP (app password auth)."""
-    if current_drawdown <= BUY_SIGNAL_DRAWDOWN_THRESHOLD:
-        signal_line = "BUY BUY BUY"
-    else:
-        signal_line = "HOLD"
-
-    body_text = (f"{signal_line}\n\n")
+    """Send the generated plots as email attachments via Gmail SMTP."""
+    signal_line = "BUY BUY BUY" if current_drawdown <= BUY_SIGNAL_DRAWDOWN_THRESHOLD else "HOLD"
+    body_text = f"{signal_line}\n\nCurrent Drawdown: {current_drawdown:.2f}%\n"
 
     msg = MIMEMultipart()
-    msg["Subject"] = f"Monthly S&P 500 Report"
+    msg["Subject"] = f"Monthly {INDEX_NAME} ({TICKER}) Report"
     msg["From"] = SENDER_EMAIL
     msg["To"] = RECIPIENT_EMAIL
     msg.attach(MIMEText(body_text, "plain"))

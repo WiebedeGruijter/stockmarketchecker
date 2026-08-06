@@ -115,7 +115,7 @@ def send_email_with_plots(plot_paths, current_drawdown):
     body_text = f"{signal_line}\n\nCurrent Drawdown: {current_drawdown:.2f}%\n"
 
     msg = MIMEMultipart()
-    msg["Subject"] = f"Monthly {INDEX_NAME} ({TICKER}) Report"
+    msg["Subject"] = f"{INDEX_NAME} ({TICKER}) Report"
     msg["From"] = SENDER_EMAIL
     msg["To"] = RECIPIENT_EMAIL
     msg.attach(MIMEText(body_text, "plain"))

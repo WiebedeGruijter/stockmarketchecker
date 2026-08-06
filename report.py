@@ -43,7 +43,7 @@ def make_plots(combined):
     plt.figure(figsize=(12, 6))
     plt.plot(combined["Date"], combined["Change %"], linewidth=0.5)
     plt.axhline(0, color="gray", linewidth=0.8, linestyle="--")
-    plt.title(f"{INDEX_NAME} ({TICKER}) Daily Percentage Change")
+    plt.title(f"{INDEX_NAME} Daily Percentage Change")
     plt.xlabel("Date")
     plt.ylabel("Change (%)")
     plt.grid(True, alpha=0.3)
@@ -60,7 +60,7 @@ def make_plots(combined):
 
     plt.figure(figsize=(12, 6))
     plt.plot(rolling_vol.index, rolling_vol.values, linewidth=1, color="darkorange")
-    plt.title(f"{INDEX_NAME} ({TICKER}) Rolling {window_days}-Day (~3-Month) Volatility")
+    plt.title(f"{INDEX_NAME} Rolling {window_days}-Day (~3-Month) Volatility")
     plt.xlabel("Date")
     plt.ylabel("Rolling Std Dev (%)")
     plt.grid(True, alpha=0.3)
@@ -86,7 +86,7 @@ def make_plots(combined):
     fig, axes = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
 
     axes[0].plot(price.index, price.values, linewidth=1, color="steelblue")
-    axes[0].set_title(f"{INDEX_NAME} ({TICKER}){label_suffix}")
+    axes[0].set_title(f"{INDEX_NAME} {label_suffix}")
     axes[0].set_yscale("log")
     axes[0].grid(True, alpha=0.3)
 
@@ -115,7 +115,7 @@ def send_email_with_plots(plot_paths, current_drawdown):
     body_text = f"{signal_line}\n\nCurrent Drawdown: {current_drawdown:.2f}%\n"
 
     msg = MIMEMultipart()
-    msg["Subject"] = f"{INDEX_NAME} ({TICKER}) Report"
+    msg["Subject"] = f"{INDEX_NAME} Report"
     msg["From"] = SENDER_EMAIL
     msg["To"] = RECIPIENT_EMAIL
     msg.attach(MIMEText(body_text, "plain"))

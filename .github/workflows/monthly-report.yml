@@ -13,6 +13,6 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install yfinance pandas matplotlib numpy
-      - run: python sp500_report.py
+      - run: python report.py
         env:
           GOOGLEPASSKEY: ${{ secrets.GOOGLEPASSKEY }}

@@ -48,7 +48,7 @@ def make_plots(combined):
     plt.ylabel("Change (%)")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    path = f"{TICKER.lower()}_daily_pct_change.png"
+    path = "daily_pct_change.png"
     plt.savefig(path, dpi=150)
     plt.close()
     plot_paths.append(path)
@@ -65,7 +65,7 @@ def make_plots(combined):
     plt.ylabel("Rolling Std Dev (%)")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    path = f"{TICKER.lower()}_rolling_volatility.png"
+    path = "rolling_volatility.png"
     plt.savefig(path, dpi=150)
     plt.close()
     plot_paths.append(path)
@@ -100,7 +100,7 @@ def make_plots(combined):
 
     plt.tight_layout()
     suffix_file = "_div" if INCLUDE_DIVIDENDS else "_nodiv"
-    path = f"{TICKER.lower()}_drawdown_analysis{suffix_file}.png"
+    path = f"drawdown_analysis{suffix_file}.png"
     plt.savefig(path, dpi=150)
     plt.close()
     plot_paths.append(path)

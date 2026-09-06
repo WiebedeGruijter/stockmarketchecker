@@ -26,7 +26,10 @@ import requests
 import yaml
 from bs4 import BeautifulSoup
 
-import notify
+try:
+    from . import notify
+except ImportError:  # pragma: no cover - direct script execution
+    import notify
 
 STATE_FILE = Path(__file__).parent / "seen.json"
 CONFIG_FILE = Path(__file__).parent / "config.yaml"
@@ -94,6 +97,108 @@ def _find_matching_node(parent, selectors: Iterable[str]):
         if node is not None:
             return node
     return None
+
+
+def build_ikwilhuren_search_payload(
+    csrf_token: str,
+    city: str,
+    max_price: int | float | str | None,
+    radius: int | str = 5,
+    location: dict | None = None,
+) -> dict:
+    if location is None:
+        location = {"weergavenaam": city}
+    location_name = str(location.get("weergavenaam") or city or "")
+    if not location_name.lower().startswith("gemeente ") and city:
+        location_name = city
+    payload = {
+        "_token": csrf_token,
+        "selAdres": location_name,
+        "postrequest": "doeZoek",
+        "objSearch": json.dumps(location),
+        "selPrijsVan": "",
+        "selPrijsTot": "" if max_price is None else str(max_price),
+        "selWoninghoofdtypeId": "",
+        "selSlaapkamersVan": "",
+        "selZorg": "",
+        "selBeschikbaarheid": "",
+        "selAfstand": str(radius),
+    }
+    return payload
+
+
+def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
+    listing_url = site.get("listing_url", "https://ikwilhuren.nu/aanbod/")
+    session = requests.Session()
+    session.headers.update(HEADERS)
+
+    response = session.get(listing_url, timeout=20, verify=False)
+    response.raise_for_status()
+
+    csrf_match = re.search(r'name="_token" value="([^"]+)"', response.text)
+    csrf_token = csrf_match.group(1) if csrf_match else ""
+    if not csrf_token:
+        raise ValueError("Kon de CSRF-token van Ikwilhuren niet vinden.")
+
+    city_filter = str((site.get("filters") or {}).get("city") or "Amsterdam")
+    radius = site.get("radius") or site.get("search_radius") or 5
+    max_price = (site.get("filters") or {}).get("max_price")
+    search_payload = {
+        "q": city_filter,
+        "typefilter": "(gemeente OR woonplaats OR wijk OR buurt OR weg)",
+        "page": 1,
+    }
+    location_response = session.post(
+        urljoin(listing_url, "/aanbod/geo/adressen/"),
+        data=search_payload,
+        headers={
+            "X-CSRF-TOKEN": csrf_token,
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": listing_url,
+        },
+        timeout=20,
+        verify=False,
+    )
+    location_response.raise_for_status()
+    location_data = location_response.json()
+    results = location_data.get("results") or []
+    if not results:
+        location = {"weergavenaam": city_filter}
+    else:
+        locatieid = results[0].get("id")
+        geo_response = session.post(
+            urljoin(listing_url, "/aanbod/geo/adres/"),
+            data={"locatieid": locatieid},
+            headers={
+                "X-CSRF-TOKEN": csrf_token,
+                "X-Requested-With": "XMLHttpRequest",
+                "Referer": listing_url,
+            },
+            timeout=20,
+            verify=False,
+        )
+        geo_response.raise_for_status()
+        location = geo_response.json() if isinstance(geo_response.json(), dict) else {"weergavenaam": city_filter}
+
+    search_form = build_ikwilhuren_search_payload(
+        csrf_token=csrf_token,
+        city=city_filter,
+        max_price=max_price,
+        radius=radius,
+        location=location,
+    )
+    search_response = session.post(
+        listing_url,
+        data=search_form,
+        headers={
+            "Referer": listing_url,
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        timeout=30,
+        verify=False,
+    )
+    search_response.raise_for_status()
+    return fetch_listings(site, html=search_response.text)
 
 
 def fetch_listings_api(site: dict) -> list[dict]:
@@ -164,6 +269,9 @@ def fetch_listings_api(site: dict) -> list[dict]:
 def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
     if site.get("api_url"):
         return fetch_listings_api(site)
+
+    if site.get("name") == "ikwilhuren":
+        return fetch_ikwilhuren_listings(site)
 
     if html is None:
         resp = requests.get(site["listing_url"], headers=HEADERS, timeout=20)

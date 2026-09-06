@@ -54,7 +54,9 @@ sites:
 
   - name: vbt
     enabled: true
-    listing_url: "https://vbtverhuurmakelaars.nl/woningen"
+    # The generic /woningen page is an all-cities overview; the Amsterdam list is
+    # only returned when the city query parameter is present.
+    listing_url: "https://vbtverhuurmakelaars.nl/woningen?city=amsterdam"
     listing_selector: "a.property"
     title_selector: ".normal"
     price_selector: ".price"
@@ -62,6 +64,23 @@ sites:
     link_selector: "a.property"
     link_attr: "href"
     base_url: "https://vbtverhuurmakelaars.nl"
+    filters:
+      city: "Amsterdam"
+      max_price: 1700
+      min_rooms: null
+
+  - name: mvgm
+    enabled: false
+    # The Amsterdam page currently behaves like a generic landing page, not a
+    # real filtered property list, so it is disabled until a reliable listings URL
+    # or API endpoint is confirmed.
+    listing_url: "https://mvgm.com/nl/woningen-amsterdam/"
+    listing_selector: "article, li, .item, .property, .card"
+    title_selector: "h2, h3, h4, .entry-title"
+    price_selector: ".price, [class*='price']"
+    link_selector: "a[href]"
+    link_attr: "href"
+    base_url: "https://mvgm.com"
     filters:
       city: "Amsterdam"
       max_price: 1700

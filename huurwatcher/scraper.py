@@ -274,7 +274,7 @@ def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
     if site.get("api_url"):
         return fetch_listings_api(site)
 
-    if site.get("name") == "ikwilhuren":
+    if site.get("name") == "ikwilhuren" and html is None:
         return fetch_ikwilhuren_listings(site)
 
     if html is None:

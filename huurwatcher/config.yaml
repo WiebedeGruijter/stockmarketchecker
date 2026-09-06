@@ -1,0 +1,79 @@
+# ---------------------------------------------------------------------------
+# huurwatcher config
+#
+# Voor elke site die je wilt volgen komt er een blok onder "sites:".
+# De selectors (listing_selector, title_selector, etc.) zijn CSS-selectors.
+# Hoe je die vindt staat in README.md ("Selectors vinden met devtools").
+#
+# filters zijn optioneel: laat een veld weg (of zet op null) om niet te filteren.
+# ---------------------------------------------------------------------------
+
+check_interval_minutes: 15
+
+notify:
+  # "email" -> stuurt een e-mail via Gmail SMTP
+  # "mac"   -> native macOS notificatie (osascript)
+  # "telegram" -> stuurt via een Telegram bot
+  channels: ["email"]
+  email:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "wiebedg@gmail.com"
+    password: "REPLACE_WITH_GMAIL_APP_PASSWORD"  # zet dit ook in env: GOOGLEPASSKEY
+    from_address: "wiebedg@gmail.com"
+    to_address: "wiebedg@gmail.com"
+  telegram:
+    bot_token: ""     # van @BotFather
+    chat_id: ""        # jouw chat id, zie README
+
+sites:
+  - name: vesteda
+    enabled: true
+    # URL van de gefilterde zoekresultatenpagina. Deze URL is door de browser
+    # verkregen van de echte zoekresultatenpagina en is ook bruikbaar als fallback.
+    listing_url: "https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=0&radius=20&s=Amsterdam,+Nederland&sc=woning&latitude=52.367573&longitude=4.904139&filters=6855&priceFrom=500&priceTo=2000"
+    # Vesteda levert de resultaten in een JSON API terug; dat is stabieler dan CSS
+    # selectors. De gegevens hieronder zijn getest tegen de live site.
+    api_url: "https://www.vesteda.com/api/units/search/facet"
+    api_method: "POST"
+    api_payload:
+      s: "Amsterdam"
+      placeType: 1
+      rootId: 1303
+    # Fallback CSS-selectors als de API later niet beschikbaar is.
+    listing_selector: "article, li"
+    title_selector: "h3, h4"
+    price_selector: ".price, [class*='price']"
+    link_selector: "a[href]"
+    link_attr: "href"
+    base_url: "https://www.vesteda.com"
+    filters:
+      city: "Amsterdam"
+      max_price: 1700
+      min_rooms: null
+
+  - name: mvgm
+    enabled: false
+    listing_url: "https://www.mvgm.nl/woningaanbod?plaats=amsterdam"
+    listing_selector: ".object-item"              # PLACEHOLDER
+    title_selector: ".object-item__title"         # PLACEHOLDER
+    price_selector: ".object-item__price"         # PLACEHOLDER
+    link_selector: "a"
+    link_attr: "href"
+    base_url: "https://www.mvgm.nl"
+    filters:
+      max_price: 1800
+      min_rooms: null
+
+  - name: vbt
+    enabled: false
+    listing_url: "https://www.vbtverhuurmakelaars.nl/woningaanbod"
+    listing_selector: ".listing"                  # PLACEHOLDER
+    title_selector: ".listing__title"              # PLACEHOLDER
+    price_selector: ".listing__price"              # PLACEHOLDER
+    link_selector: "a"
+    link_attr: "href"
+    base_url: "https://www.vbtverhuurmakelaars.nl"
+    filters:
+      max_price: 1800
+      min_rooms: null

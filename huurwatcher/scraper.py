@@ -23,6 +23,7 @@ from typing import Iterable
 from urllib.parse import urljoin
 
 import requests
+import urllib3
 import yaml
 from bs4 import BeautifulSoup
 
@@ -30,6 +31,8 @@ try:
     from . import notify
 except ImportError:  # pragma: no cover - direct script execution
     import notify
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 STATE_FILE = Path(__file__).parent / "seen.json"
 CONFIG_FILE = Path(__file__).parent / "config.yaml"
@@ -131,8 +134,9 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
     listing_url = site.get("listing_url", "https://ikwilhuren.nu/aanbod/")
     session = requests.Session()
     session.headers.update(HEADERS)
+    timeout = (5, 12)
 
-    response = session.get(listing_url, timeout=20, verify=False)
+    response = session.get(listing_url, timeout=timeout, verify=False)
     response.raise_for_status()
 
     csrf_match = re.search(r'name="_token" value="([^"]+)"', response.text)
@@ -156,7 +160,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
             "X-Requested-With": "XMLHttpRequest",
             "Referer": listing_url,
         },
-        timeout=20,
+        timeout=timeout,
         verify=False,
     )
     location_response.raise_for_status()
@@ -174,7 +178,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
                 "X-Requested-With": "XMLHttpRequest",
                 "Referer": listing_url,
             },
-            timeout=20,
+            timeout=timeout,
             verify=False,
         )
         geo_response.raise_for_status()
@@ -194,7 +198,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
             "Referer": listing_url,
             "X-Requested-With": "XMLHttpRequest",
         },
-        timeout=30,
+        timeout=timeout,
         verify=False,
     )
     search_response.raise_for_status()

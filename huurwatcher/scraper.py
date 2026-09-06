@@ -188,6 +188,7 @@ def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
 
     title_selectors = _selector_candidates(site.get("title_selector"))
     price_selectors = _selector_candidates(site.get("price_selector"))
+    city_selectors = _selector_candidates(site.get("city_selector"))
     link_selectors = _selector_candidates(site.get("link_selector"))
     link_attr = site.get("link_attr", "href")
     base_url = site.get("base_url", site.get("listing_url", ""))
@@ -196,10 +197,12 @@ def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
     for card in cards:
         title_el = _find_matching_node(card, title_selectors)
         price_el = _find_matching_node(card, price_selectors)
+        city_el = _find_matching_node(card, city_selectors)
         link_el = _find_matching_node(card, link_selectors)
 
         title = title_el.get_text(" ", strip=True) if title_el else "(geen titel gevonden)"
         price_text = price_el.get_text(" ", strip=True) if price_el else ""
+        city = city_el.get_text(" ", strip=True) if city_el else ""
         href = link_el.get(link_attr) if link_el and link_attr in link_el.attrs else None
         if href and href.startswith("/"):
             url = urljoin(base_url, href)
@@ -216,6 +219,7 @@ def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
             "title": title,
             "price_text": price_text,
             "price": parse_price(price_text),
+            "city": city,
             "url": url,
         }
         items.append(item)

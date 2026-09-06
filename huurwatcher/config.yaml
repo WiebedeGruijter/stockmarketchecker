@@ -52,28 +52,32 @@ sites:
       max_price: 1700
       min_rooms: null
 
-  - name: mvgm
-    enabled: false
-    listing_url: "https://www.mvgm.nl/woningaanbod?plaats=amsterdam"
-    listing_selector: ".object-item"              # PLACEHOLDER
-    title_selector: ".object-item__title"         # PLACEHOLDER
-    price_selector: ".object-item__price"         # PLACEHOLDER
-    link_selector: "a"
+  - name: vbt
+    enabled: true
+    listing_url: "https://vbtverhuurmakelaars.nl/woningen"
+    listing_selector: "a.property"
+    title_selector: ".normal"
+    price_selector: ".price"
+    city_selector: ".items > div:first-child"
+    link_selector: "a.property"
     link_attr: "href"
-    base_url: "https://www.mvgm.nl"
+    base_url: "https://vbtverhuurmakelaars.nl"
     filters:
-      max_price: 1800
+      city: "Amsterdam"
+      max_price: 1700
       min_rooms: null
 
-  - name: vbt
-    enabled: false
-    listing_url: "https://www.vbtverhuurmakelaars.nl/woningaanbod"
-    listing_selector: ".listing"                  # PLACEHOLDER
-    title_selector: ".listing__title"              # PLACEHOLDER
-    price_selector: ".listing__price"              # PLACEHOLDER
-    link_selector: "a"
+  - name: ikwilhuren
+    enabled: true
+    listing_url: "https://ikwilhuren.nu/aanbod/"
+    listing_selector: ".card-woning"
+    title_selector: ".card-title a"
+    price_selector: ".fw-bold"
+    city_selector: ".card-body > span:nth-of-type(2)"
+    link_selector: ".card-title a"
     link_attr: "href"
-    base_url: "https://www.vbtverhuurmakelaars.nl"
+    base_url: "https://ikwilhuren.nu"
     filters:
-      max_price: 1800
+      city: "Amsterdam"
+      max_price: 1750
       min_rooms: null

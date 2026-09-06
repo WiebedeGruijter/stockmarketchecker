@@ -30,4 +30,16 @@ jobs:
           GOOGLEPASSKEY: ${{ secrets.GOOGLEPASSKEY }}
           EMAIL_FROM: wiebedg@gmail.com
           EMAIL_TO: wiebedg@gmail.com
-        run: python scraper.py --site vesteda
+        run: python scraper.py
+
+      - name: Save seen state back to the repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add huurwatcher/seen.json
+          if git diff --cached --quiet; then
+            echo "No state change to save."
+            exit 0
+          fi
+          git commit -m "Update huurwatcher seen state"
+          git push origin HEAD:main

@@ -40,10 +40,20 @@ def notify_telegram(bot_token: str, chat_id: str, title: str, message: str, url:
 
 
 def notify_email(host: str, port: int, username: str, password: str, sender: str, recipient: str, title: str, message: str, url: str | None = None) -> None:
-    password = password or os.getenv("GOOGLEPASSKEY", "")
-    sender = sender or os.getenv("EMAIL_FROM", "")
-    recipient = recipient or os.getenv("EMAIL_TO", "")
+    env_password = os.getenv("GOOGLEPASSKEY", "").strip()
+    env_sender = os.getenv("EMAIL_FROM", "").strip()
+    env_recipient = os.getenv("EMAIL_TO", "").strip()
+
+    password = env_password or (password or "").strip()
+    if not password or password == "REPLACE_WITH_GMAIL_APP_PASSWORD":
+        password = ""
+    sender = env_sender or (sender or "").strip()
+    recipient = env_recipient or (recipient or "").strip()
+    username = (username or "").strip()
+    host = (host or "").strip()
+
     if not host or not username or not password or not sender or not recipient:
+        print("[notify] Email skipped: missing SMTP credentials or email addresses.")
         return
     msg = EmailMessage()
     msg["Subject"] = title

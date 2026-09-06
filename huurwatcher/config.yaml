@@ -19,7 +19,7 @@ notify:
     host: "smtp.gmail.com"
     port: 587
     username: "wiebedg@gmail.com"
-    password: "REPLACE_WITH_GMAIL_APP_PASSWORD"  # zet dit ook in env: GOOGLEPASSKEY
+    password: ""  # gebruik GitHub Secret GOOGLEPASSKEY in GitHub Actions
     from_address: "wiebedg@gmail.com"
     to_address: "wiebedg@gmail.com"
   telegram:

@@ -8,7 +8,7 @@
 # filters zijn optioneel: laat een veld weg (of zet op null) om niet te filteren.
 # ---------------------------------------------------------------------------
 
-check_interval_minutes: 60
+check_interval_minutes: 5
 
 notify:
   # "email" -> stuurt een e-mail via Gmail SMTP

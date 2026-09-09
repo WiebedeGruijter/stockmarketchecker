@@ -23,6 +23,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: huurwatcher/requirements.txt
 
       - name: Install dependencies
         working-directory: ./huurwatcher

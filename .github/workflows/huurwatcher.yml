@@ -5,8 +5,12 @@ permissions:
 
 on:
   workflow_dispatch: {}
-  # schedule:
-  #   - cron: '*/15 * * * *'
+  schedule:
+    - cron: '0 * * * *'
+
+concurrency:
+  group: huurwatcher-main
+  cancel-in-progress: false
 
 jobs:
   check-listings:

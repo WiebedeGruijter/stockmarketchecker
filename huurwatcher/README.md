@@ -85,11 +85,11 @@ macOS-notificatie te tonen. Geen setup nodig.
 crontab -e
 ```
 
-Voeg toe (checkt elke 15 minuten, pas het pad aan naar waar je de map hebt
+Voeg toe (checkt elk uur, pas het pad aan naar waar je de map hebt
 staan):
 
 ```
-*/15 * * * * cd /Users/JOUWNAAM/huurwatcher && .venv/bin/python scraper.py >> run.log 2>&1
+0 * * * * cd /Users/JOUWNAAM/huurwatcher && .venv/bin/python scraper.py >> run.log 2>&1
 ```
 
 Let op: je Mac moet aan/wakker zijn op de momenten dat cron draait —

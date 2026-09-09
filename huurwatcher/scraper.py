@@ -270,6 +270,11 @@ def fetch_listings_api(site: dict) -> list[dict]:
     return items
 
 
+def count_matching_listings(site: dict, html: str | None = None) -> int:
+    listings = fetch_listings(site, html=html)
+    return sum(1 for item in listings if passes_filters(item, site.get("filters")))
+
+
 def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
     if site.get("api_url"):
         return fetch_listings_api(site)
@@ -280,7 +285,8 @@ def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
     if html is None:
         resp = requests.get(site["listing_url"], headers=HEADERS, timeout=20)
         resp.raise_for_status()
-        html = resp.text
+        encoding = resp.apparent_encoding or resp.encoding or "utf-8"
+        html = resp.content.decode(encoding, errors="replace")
 
     soup = BeautifulSoup(html, "lxml")
 
@@ -310,7 +316,7 @@ def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
         title_el = _find_matching_node(card, title_selectors)
         price_el = _find_matching_node(card, price_selectors)
         city_el = _find_matching_node(card, city_selectors)
-        link_el = _find_matching_node(card, link_selectors)
+        link_el = card if card.name == "a" and card.has_attr(link_attr) else _find_matching_node(card, link_selectors)
 
         title = title_el.get_text(" ", strip=True) if title_el else "(geen titel gevonden)"
         price_text = price_el.get_text(" ", strip=True) if price_el else ""
@@ -345,11 +351,11 @@ def passes_filters(item: dict, filters: dict | None) -> bool:
     city_filter = filters.get("city")
     if city_filter:
         city_value = str(item.get("city") or item.get("location") or "").lower()
-        if city_value and str(city_filter).lower() not in city_value:
+        if not city_value or str(city_filter).lower() not in city_value:
             return False
 
     max_price = filters.get("max_price")
-    if max_price is not None and item.get("price") is not None and item["price"] > max_price:
+    if max_price is not None and (item.get("price") is None or item["price"] >= max_price):
         return False
 
     min_rooms = filters.get("min_rooms")
@@ -394,7 +400,7 @@ def check_site(site: dict, state: dict, config: dict) -> int:
             url=item["url"],
         )
 
-    state[name] = list(seen_ids)
+    state[name] = sorted(seen_ids)
     return new_count
 
 
@@ -409,10 +415,75 @@ def run_once(config: dict, only_site: str | None = None) -> None:
     save_state(state)
 
 
+def wait_until_sites_have_matches(
+    config: dict,
+    site_names: list[str] | None = None,
+    retry_seconds: int = 60,
+    max_attempts: int | None = None,
+) -> None:
+    required = []
+    for site in config.get("sites", []):
+        if not site.get("enabled", True):
+            continue
+        if site_names is None or site["name"] in site_names:
+            required.append(site["name"])
+
+    if not required:
+        print("Geen sites geselecteerd om te wachten op resultaat.")
+        return
+
+    attempt = 0
+    while True:
+        attempt += 1
+        ready = set()
+        print(f"\nAttempt {attempt}: checking {', '.join(required)}")
+        for site in config.get("sites", []):
+            if not site.get("enabled", True):
+                continue
+            name = site["name"]
+            if site_names is not None and name not in site_names:
+                continue
+            try:
+                count = count_matching_listings(site)
+            except Exception as exc:
+                print(f"[{name}] FOUT bij ophalen: {exc}")
+                continue
+            print(f"[{name}] matching items: {count}")
+            if count > 0:
+                ready.add(name)
+
+        if ready >= set(required):
+            print(f"All required sites have matches: {', '.join(sorted(required))}")
+            return
+
+        if max_attempts is not None and attempt >= max_attempts:
+            print(f"Stop after {attempt} attempts; not all sites matched: {', '.join(sorted(required))}")
+            return
+
+        print(f"Waiting {retry_seconds}s before retrying...\n")
+        time.sleep(retry_seconds)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Volg huuraanbod-sites op nieuwe listings.")
     parser.add_argument("--loop", action="store_true", help="Blijf draaien i.p.v. eenmalig checken")
     parser.add_argument("--site", help="Check alleen deze site (naam uit config.yaml)")
+    parser.add_argument(
+        "--until-found",
+        help="Blijf herhalen totdat deze sites minstens 1 match hebben (comma-separated, bv. vesteda,vbt,ikwilhuren)",
+    )
+    parser.add_argument(
+        "--retry-every",
+        type=int,
+        default=60,
+        help="Aantal seconden tussen retries bij --until-found (standaard: 60)",
+    )
+    parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=None,
+        help="Maximaal aantal pogingen bij --until-found (optioneel)",
+    )
     parser.add_argument("--reset-state", action="store_true", help="Wis de opgeslagen seen-state en stop.")
     args = parser.parse_args()
 
@@ -429,6 +500,16 @@ def main() -> None:
     except Exception as exc:
         print(f"Fout in config.yaml: {exc}", file=sys.stderr)
         raise SystemExit(1)
+
+    if args.until_found:
+        target_sites = [part.strip() for part in args.until_found.split(",") if part.strip()]
+        wait_until_sites_have_matches(
+            config,
+            site_names=target_sites,
+            retry_seconds=args.retry_every,
+            max_attempts=args.max_attempts,
+        )
+        return
 
     if args.loop:
         interval = config.get("check_interval_minutes", 15) * 60

@@ -111,3 +111,99 @@ def test_check_site_notifies_only_once_for_each_listing():
 
   assert len(notifications) == 1
   assert state["test-site"] == ["listing-1"]
+
+
+
+def test_fetch_vanderlinden_listings_from_html():
+    items = scraper.fetch_listings({
+        "listing_url": "https://example.com/woning-huren/",
+        "base_url": "https://example.com",
+        "listing_selector": ".woninginfo",
+        "title_selector": "strong",
+        "price_selector": ".mt-2",
+        "city_selector": ".text-80.mb-0",
+        "link_selector": "a.blocklink",
+        "link_attr": "href",
+    }, html="""
+      <div class="woninginfo">
+        <div class="p-2">
+          <strong>Teststraat 1</strong>
+          <div class="text-80 mb-0">Amsterdam</div>
+          <div class="mt-2">€ 1.250 per maand</div>
+          <a class="blocklink" href="/huurwoning/test/1/"></a>
+        </div>
+      </div>
+    """)
+
+    assert items[0]["title"] == "Teststraat 1"
+    assert items[0]["city"] == "Amsterdam"
+    assert items[0]["price"] == 1250.0
+    assert items[0]["url"] == "https://example.com/huurwoning/test/1/"
+
+
+def test_fetch_schep_listings_from_api():
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"data": [{
+                "id": 123,
+                "title": "Testwoning 2",
+                "slug": "testwoning-2",
+                "address": {"location": "Amsterdam"},
+                "handover": {"price": 1400, "price_formatted": "€ 1.400"},
+            }]}
+
+    original_get = scraper.requests.get
+    scraper.requests.get = lambda *args, **kwargs: Response()
+    try:
+        items = scraper.fetch_listings_schep({
+            "api_url": "https://example.com/api",
+            "base_url": "https://example.com",
+            "api_params": {},
+            "listing_url": "https://example.com/huur/woningen",
+        })
+    finally:
+        scraper.requests.get = original_get
+
+    assert items[0]["id"] == "123"
+    assert items[0]["price"] == 1400.0
+    assert items[0]["city"] == "Amsterdam"
+    assert items[0]["url"] == "https://example.com/huur/woningen/testwoning-2"
+
+
+def test_fetch_rebo_listings_from_algolia():
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"hits": [{
+                "objectID": "entry:1",
+                "title": "Testwoning 3, Amsterdam",
+                "city": "Amsterdam",
+                "price": 1350,
+                "price_type": "per maand",
+                "uri": "/aanbod/testwoning-3",
+            }]}
+
+    original_post = scraper.requests.post
+    scraper.requests.post = lambda *args, **kwargs: Response()
+    try:
+        items = scraper.fetch_listings_algolia({
+            "api_url": "https://example.com/algolia",
+            "application_id": "app",
+            "api_key": "key",
+            "api_payload": {},
+            "base_url": "https://example.com",
+            "url_prefix": "nl",
+            "listing_url": "https://example.com/huren",
+        })
+    finally:
+        scraper.requests.post = original_post
+
+    assert items[0]["id"] == "entry:1"
+    assert items[0]["price"] == 1350.0
+    assert items[0]["city"] == "Amsterdam"
+    assert items[0]["url"] == "https://example.com/nl/aanbod/testwoning-3"

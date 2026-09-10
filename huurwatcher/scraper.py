@@ -270,12 +270,90 @@ def fetch_listings_api(site: dict) -> list[dict]:
     return items
 
 
+def fetch_listings_schep(site: dict) -> list[dict]:
+    api_url = site["api_url"]
+    params = dict(site.get("api_params") or {})
+    response = requests.get(
+        api_url,
+        params=params,
+        headers={**HEADERS, "Accept": "application/json"},
+        timeout=20,
+    )
+    response.raise_for_status()
+    data = response.json()
+    base_url = site.get("base_url", site.get("listing_url", ""))
+    items = []
+    for obj in data.get("data", []):
+        if not isinstance(obj, dict):
+            continue
+        address = obj.get("address") or {}
+        handover = obj.get("handover") or {}
+        price = handover.get("price")
+        price_text = handover.get("price_formatted") or ""
+        slug = obj.get("slug") or ""
+        url = urljoin(base_url, f"/huur/woningen/{slug}") if slug else site.get("listing_url", "")
+        items.append({
+            "id": str(obj.get("id") or url),
+            "title": str(obj.get("title") or "Onbekende woning"),
+            "price_text": f"{price_text} p/m" if price_text else "",
+            "price": float(price) if price is not None else None,
+            "city": str(address.get("location") or ""),
+            "url": url,
+        })
+    return items
+
+
+def fetch_listings_algolia(site: dict) -> list[dict]:
+    request_headers = {
+        **HEADERS,
+        "Content-Type": "application/json",
+        "x-algolia-api-key": site["api_key"],
+        "x-algolia-application-id": site["application_id"],
+    }
+    payload = dict(site.get("api_payload") or {})
+    response = requests.post(
+        site["api_url"],
+        params={"x-algolia-agent": "Algolia for Python"},
+        json=payload,
+        headers=request_headers,
+        timeout=20,
+    )
+    response.raise_for_status()
+    data = response.json()
+    base_url = site.get("base_url", site.get("listing_url", ""))
+    items = []
+    for obj in data.get("hits", []):
+        if not isinstance(obj, dict):
+            continue
+        uri = obj.get("uri") or ""
+        url_prefix = str(site.get("url_prefix") or "").strip("/")
+        if url_prefix and uri.startswith("/"):
+            uri = f"/{url_prefix}{uri}"
+        url = urljoin(base_url, uri)
+        price = obj.get("price")
+        items.append({
+            "id": str(obj.get("objectID") or obj.get("uri") or url),
+            "title": str(obj.get("title") or obj.get("address") or "Onbekende woning"),
+            "price_text": f"€ {price} {obj.get('price_type', '')}".strip() if price is not None else "",
+            "price": float(price) if price is not None else None,
+            "city": str(obj.get("city") or ""),
+            "url": url,
+        })
+    return items
+
+
 def count_matching_listings(site: dict, html: str | None = None) -> int:
     listings = fetch_listings(site, html=html)
     return sum(1 for item in listings if passes_filters(item, site.get("filters")))
 
 
 def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
+    if site.get("api_type") == "schep":
+        return fetch_listings_schep(site)
+
+    if site.get("api_type") == "algolia":
+        return fetch_listings_algolia(site)
+
     if site.get("api_url"):
         return fetch_listings_api(site)
 

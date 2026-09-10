@@ -100,3 +100,69 @@ sites:
       city: "Amsterdam"
       max_price: 1500
       min_rooms: null
+
+  - name: vanderlinden
+    enabled: true
+    listing_url: "https://www.vanderlinden.nl/woning-huren/"
+    listing_selector: ".woninginfo"
+    title_selector: "strong"
+    price_selector: ".mt-2"
+    city_selector: ".text-80.mb-0"
+    link_selector: "a.blocklink"
+    link_attr: "href"
+    base_url: "https://www.vanderlinden.nl"
+    filters:
+      city: "Amsterdam"
+      max_price: 1500
+      min_rooms: null
+
+  - name: schep
+    enabled: true
+    listing_url: "https://zoeken.schepvastgoedmanagers.nl/huur/woningen"
+    api_type: "schep"
+    api_url: "https://zoeken.schepvastgoedmanagers.nl/api/ms/listing/properties"
+    api_params:
+      perPage: 200
+      page: 1
+      sort: "-published_at"
+      filter[stage]: "available"
+      filter[import_type]: "RentResident"
+    base_url: "https://zoeken.schepvastgoedmanagers.nl"
+    filters:
+      city: "Amsterdam"
+      max_price: 1500
+      min_rooms: null
+
+  - name: rebo
+    enabled: true
+    listing_url: "https://www.rebogroep.nl/nl/particulier/ons-aanbod/huren"
+    api_type: "algolia"
+    api_url: "https://240m1w8agr-dsn.algolia.net/1/indexes/private_objects_rent_sale_nl_status_asc/query"
+    application_id: "240M1W8AGR"
+    api_key: "055822c5312edb8cf91a483936751fac"
+    api_payload:
+      query: ""
+      facetFilters: ["type_facet:rent||rent"]
+      facets: ["*"]
+      hitsPerPage: 1000
+      page: 0
+      sortFacetValuesBy: "alpha"
+      maxValuesPerFacet: 99999999
+    base_url: "https://www.rebogroep.nl"
+    url_prefix: "nl"
+    filters:
+      city: "Amsterdam"
+      max_price: 1500
+      min_rooms: null
+
+  - name: mijndak
+    enabled: false
+    # De openbare pagina toont momenteel geen aanbod zonder inloggen; de
+    # OutSystems-aanbodcalls zijn sessiegebonden en daarom niet betrouwbaar
+    # genoeg voor deze requests-based watcher.
+    listing_url: "https://amsterdam.mijndak.nl/Woningaanbod"
+    base_url: "https://amsterdam.mijndak.nl"
+    filters:
+      city: "Amsterdam"
+      max_price: 1500
+      min_rooms: null

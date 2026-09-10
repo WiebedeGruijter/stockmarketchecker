@@ -13,6 +13,8 @@
     "https://vbtverhuurmakelaars.nl/woning/helmond-beverstraat-24",
     "https://vbtverhuurmakelaars.nl/woning/helmond-huiskensstraat-7",
     "https://vbtverhuurmakelaars.nl/woning/hoofddorp-thomas-harriotlaan-11",
+    "https://vbtverhuurmakelaars.nl/woning/maastricht-vijfharingenstraat-15d9",
+    "https://vbtverhuurmakelaars.nl/woning/s-gravenhage-maria-stuartplein-446",
     "https://vbtverhuurmakelaars.nl/woning/schiedam-stationsplein-6h10",
     "https://vbtverhuurmakelaars.nl/woning/tilburg-magazijnstraat-1-60",
     "https://vbtverhuurmakelaars.nl/woning/weert-sutjensstraat-52",
@@ -23,6 +25,7 @@
   "ikwilhuren": [
     "https://ikwilhuren.nu/object/amsterdam-1014zp-305-pontsteiger-c0ccb5c6342d39705b5ab1c0465e335c/",
     "https://ikwilhuren.nu/object/amsterdam-1014zp-306-pontsteiger-069e4ba49d389e5d41c378ed39d4e6cc/",
+    "https://ikwilhuren.nu/object/amsterdam-1018td-18-plantage-lepellaan-5526503475f525e0ced534c937b39868/",
     "https://ikwilhuren.nu/object/amsterdam-1019rc-987-sumatrakade-2ef221ad0d5762255b10c51185a13e3c/",
     "https://ikwilhuren.nu/object/amsterdam-1019sg-668-javakade-38b714032b34b9d35eaf0518cccc95af/",
     "https://ikwilhuren.nu/object/amsterdam-1025xl-1620-buikslotermeerplein-e0a0a1d4ce24cc3fd6e99616f6847bf2/",
@@ -56,6 +59,7 @@
     "10059",
     "10099",
     "101",
+    "10103",
     "10104",
     "10114",
     "10168",
@@ -860,6 +864,7 @@
     "12871923",
     "12873078",
     "12873367",
+    "12873369",
     "12876206",
     "12889683",
     "12893176",
@@ -939,7 +944,10 @@
     "13030212",
     "13030213",
     "13030502",
-    "13030503"
+    "13030503",
+    "13031131",
+    "13031132",
+    "13031133"
   ],
   "rebo": [
     "entry::00690537-5658-46d3-bace-aa32afb956fb",
@@ -1019,6 +1027,7 @@
     "entry::5aaa79f5-68cf-4cba-b6c0-8f8fede2a7bf",
     "entry::5eccca99-d3ca-44ef-b28f-53d926675c86",
     "entry::5fc75460-533d-442d-8306-e53d6026bf4c",
+    "entry::6015baba-b3f1-4e87-ab55-8e7c7f11addc",
     "entry::60b6cd08-7285-4714-92b0-d05d22e4dc64",
     "entry::65d3fb90-c80b-411d-9e50-bd4138203ecb",
     "entry::664b0370-4d63-4088-b4b8-ae4f6435b6a7",

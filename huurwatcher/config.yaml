@@ -31,7 +31,7 @@ sites:
     enabled: true
     # URL van de gefilterde zoekresultatenpagina. Deze URL is door de browser
     # verkregen van de echte zoekresultatenpagina en is ook bruikbaar als fallback.
-    listing_url: "https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=0&radius=20&s=Amsterdam,+Nederland&sc=woning&latitude=52.367573&longitude=4.904139&filters=6855&priceFrom=500&priceTo=1500"
+    listing_url: "https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=0&radius=20&s=Amsterdam,+Nederland&sc=woning&latitude=52.367573&longitude=4.904139&filters=6855&priceFrom=500&priceTo=1700"
     # Vesteda levert de resultaten in een JSON API terug; dat is stabieler dan CSS
     # selectors. De gegevens hieronder zijn getest tegen de live site.
     api_url: "https://www.vesteda.com/api/units/search/facet"
@@ -49,7 +49,7 @@ sites:
     base_url: "https://www.vesteda.com"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: vbt
@@ -66,7 +66,7 @@ sites:
     base_url: "https://vbtverhuurmakelaars.nl"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: mvgm
@@ -83,7 +83,7 @@ sites:
     base_url: "https://mvgm.com"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: ikwilhuren
@@ -98,7 +98,7 @@ sites:
     base_url: "https://ikwilhuren.nu"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: vanderlinden
@@ -113,7 +113,7 @@ sites:
     base_url: "https://www.vanderlinden.nl"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: schep
@@ -130,7 +130,7 @@ sites:
     base_url: "https://zoeken.schepvastgoedmanagers.nl"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: rebo
@@ -152,7 +152,7 @@ sites:
     url_prefix: "nl"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null
 
   - name: mijndak
@@ -164,5 +164,5 @@ sites:
     base_url: "https://amsterdam.mijndak.nl"
     filters:
       city: "Amsterdam"
-      max_price: 1500
+      max_price: 1700
       min_rooms: null

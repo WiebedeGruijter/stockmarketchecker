@@ -38,6 +38,7 @@
     "https://ikwilhuren.nu/object/amsterdam-1025xl-1620-buikslotermeerplein-e0a0a1d4ce24cc3fd6e99616f6847bf2/",
     "https://ikwilhuren.nu/object/amsterdam-1031kb-108-spadinalaan-e8681f28c627dfdfc04f039c24f38256/",
     "https://ikwilhuren.nu/object/amsterdam-1031kh-73-batteryparkstraat-76e37769f5afa916714748f7760736cc/",
+    "https://ikwilhuren.nu/object/amsterdam-1033se-77-e1-tt-vasumweg-a464ec52310ac7e3a346e6f659d4005c/",
     "https://ikwilhuren.nu/object/amsterdam-1033sn-14-t4-mt-lincolnweg-ffe0b3e072a852842a9af41a6db3c815/",
     "https://ikwilhuren.nu/object/amsterdam-1066ne-206-hamontstraat-4e65f38b302eef8e36f496d020b4e4b9/",
     "https://ikwilhuren.nu/object/amsterdam-1076dp-114-afroditekade-cde3bfdd8d09ddc679a242af6569e913/",
@@ -61,6 +62,7 @@
     "https://ikwilhuren.nu/object/heemskerk-1961gl-20-zamenhof-ee8be8c2b9016d79cc45fb9693162798/",
     "https://ikwilhuren.nu/object/hendrik-ido-ambacht-3343da-17-aelbert-cuyplaan-f7f45a90d51f26ea20b4f5baa4a84437/",
     "https://ikwilhuren.nu/object/huizen-1274ae-6-noordwal-e362e49187957e47e948cb5c73b9b0aa/",
+    "https://ikwilhuren.nu/object/leiden-2316xd-318-schipholweg-dc41658233fe33a304a65e8b1417a318/",
     "https://ikwilhuren.nu/object/nieuwegein-3431hx-124-tinnegieterstede-76ae9f7275b7286a36988c4049d0366d/",
     "https://ikwilhuren.nu/object/nijmegen-6532cs-14-niek-engelschmanlaan-bf49b115f2e8bf8eccf3c6d584acd552/",
     "https://ikwilhuren.nu/object/nijmegen-6541aa-331-waalbandijk-404fca95bbaaf31ae4abd10b004f2bd3/",
@@ -81,6 +83,7 @@
     "https://ikwilhuren.nu/object/utrecht-3521ah-95-van-sijpesteijnkade-5ed086371dcd3984d67bf2bce70ce930/",
     "https://ikwilhuren.nu/object/utrecht-3521ds-367-twellosebeeklaan-8b5657b0b3e667ce57447d69dbb6f79f/",
     "https://ikwilhuren.nu/object/utrecht-3534bj-139-cab-rondom-788a4fbe72313da708616d806f2ec20f/",
+    "https://ikwilhuren.nu/object/utrecht-3543bn-65-operettelaan-ca1eaa2bf8abe65a8a56c9ecd50ff7bf/",
     "https://ikwilhuren.nu/object/woerden-3448dc-18-molenvlietbaan-58d2c35ec7638b05deca4452019380fd/"
   ],
   "vesteda": [
@@ -1214,6 +1217,7 @@
     "entry::d37b75ed-ec20-4616-a4e0-64029f285e55",
     "entry::d3f5a0c3-457c-444c-baf9-0ce039c60790",
     "entry::d4ac8c13-560d-4243-b4b8-b201ef016e2e",
+    "entry::d5d5aded-8c29-4d85-9a45-2a54e2d8b633",
     "entry::d61b5e0a-ac46-4145-a390-3d9371a9bafe",
     "entry::d660e986-dd00-478c-829c-808b42e09aac",
     "entry::d74c3216-bc7c-47dd-b75f-3ee8926a6c54",

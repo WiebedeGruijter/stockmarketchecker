@@ -116,6 +116,62 @@ def test_fetch_listings_uses_root_anchor_as_vbt_listing_link():
   assert items[0]["url"] == "https://example.com/woning/amsterdam-example"
 
 
+def test_fetch_vbt_listings_walks_paginated_overview():
+  html_by_url = {
+    "https://example.com/woningen": """
+      <a class="property" href="/woning/amsterdam-page-one">
+        <span class="normal">Eerste woning</span>
+        <div class="price">€ 1.200,-</div>
+        <div class="items"><div>Amsterdam</div></div>
+      </a>
+    """,
+    "https://example.com/woningen/2": """
+      <a class="property" href="/woning/amsterdam-hiridostraat-2c115">
+        <span class="normal">Hiridostraat 2</span>
+        <div class="price">€ 1.230,-</div>
+        <div class="items"><div>Amsterdam</div></div>
+      </a>
+    """,
+    "https://example.com/woningen/3": "<html><body>No more listings</body></html>",
+  }
+
+  class Response:
+    def __init__(self, url, html):
+      self.status_code = 200
+      self.url = url
+      self.headers = {"Content-Type": "text/html"}
+      self.text = html
+      self.content = html.encode()
+      self.apparent_encoding = "utf-8"
+      self.encoding = "utf-8"
+
+    def raise_for_status(self):
+      pass
+
+  original_get = scraper.requests.get
+  scraper.requests.get = lambda url, **kwargs: Response(url, html_by_url[url])
+  try:
+    items = scraper.fetch_listings({
+      "name": "vbt",
+      "listing_url": "https://example.com/woningen",
+      "base_url": "https://example.com",
+      "listing_selector": "a.property",
+      "title_selector": ".normal",
+      "price_selector": ".price",
+      "city_selector": ".items > div:first-child",
+      "link_selector": "a.property",
+      "link_attr": "href",
+      "max_pages": 5,
+    })
+  finally:
+    scraper.requests.get = original_get
+
+  assert [item["url"] for item in items] == [
+    "https://example.com/woning/amsterdam-page-one",
+    "https://example.com/woning/amsterdam-hiridostraat-2c115",
+  ]
+
+
 def test_check_site_notifies_only_once_for_each_listing():
   site = {
     "name": "test-site",

@@ -298,6 +298,36 @@ def fetch_listings_api(site: dict) -> list[dict]:
     return items
 
 
+def fetch_vbt_listings(site: dict) -> list[dict]:
+    listings = []
+    max_pages = int(site.get("max_pages", 50))
+    base_url = site.get("base_url", site["listing_url"])
+
+    for page in range(1, max_pages + 1):
+        page_url = site["listing_url"] if page == 1 else urljoin(base_url, f"/woningen/{page}")
+        response = requests.get(page_url, headers=HEADERS, timeout=20)
+        log_response_diagnostics(response, f"vbt page {page}")
+        if response.status_code == 404:
+            break
+        response.raise_for_status()
+        encoding = response.apparent_encoding or response.encoding or "utf-8"
+        page_html = response.content.decode(encoding, errors="replace")
+        page_listings = fetch_listings(site, html=page_html)
+        if not page_listings:
+            break
+        listings.extend(page_listings)
+
+        if page == 1:
+            page_numbers = {
+                int(match.group(1))
+                for match in re.finditer(r'href=["\']/woningen/(\d+)["\']', page_html)
+            }
+            if page_numbers:
+                max_pages = min(max_pages, max(page_numbers))
+
+    return listings
+
+
 def fetch_listings_schep(site: dict) -> list[dict]:
     api_url = site["api_url"]
     params = dict(site.get("api_params") or {})
@@ -376,6 +406,9 @@ def count_matching_listings(site: dict, html: str | None = None) -> int:
 
 
 def fetch_listings(site: dict, html: str | None = None) -> list[dict]:
+    if site.get("name") == "vbt" and html is None:
+        return fetch_vbt_listings(site)
+
     if site.get("api_type") == "schep":
         return fetch_listings_schep(site)
 

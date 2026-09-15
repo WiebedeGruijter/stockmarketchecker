@@ -1,8 +1,43 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from bs4 import BeautifulSoup
 
 import scraper
+
+
+def test_log_response_diagnostics_reports_http_block(capsys):
+  response = SimpleNamespace(
+    status_code=403,
+    url="https://example.com/blocked",
+    headers={"Content-Type": "text/html"},
+    text="Access denied",
+    content=b"Access denied",
+  )
+
+  scraper.log_response_diagnostics(response, "test site")
+
+  output = capsys.readouterr().out
+  assert "status=403" in output
+  assert "HTTP-blokkade/rate-limit mogelijk" in output
+  assert "access denied" in output
+
+
+def test_log_response_diagnostics_reports_challenge_in_success_response(capsys):
+  response = SimpleNamespace(
+    status_code=200,
+    url="https://example.com/challenge",
+    headers={"Content-Type": "text/html"},
+    text="Please verify you are human before continuing",
+    content=b"Please verify you are human before continuing",
+  )
+
+  scraper.log_response_diagnostics(response, "test site")
+
+  output = capsys.readouterr().out
+  assert "status=200" in output
+  assert "verify you are human" in output
 
 
 def test_parse_price_nl_format():

@@ -45,6 +45,29 @@ HEADERS = {
 }
 
 
+def log_response_diagnostics(response, label: str) -> None:
+    status = response.status_code
+    final_url = response.url
+    content_type = response.headers.get("Content-Type", "")
+    body = response.text[:20000].lower()
+    block_terms = (
+        "captcha",
+        "access denied",
+        "verify you are human",
+        "checking your browser",
+        "cloudflare",
+        "rate limit",
+        "too many requests",
+    )
+    indicators = [term for term in block_terms if term in body]
+    status_note = " HTTP-blokkade/rate-limit mogelijk." if status in (403, 429) else ""
+    indicator_note = f" Verdachte inhoud: {', '.join(indicators)}." if indicators else ""
+    print(
+        f"[{label}] response status={status}, final_url={final_url}, "
+        f"content_type={content_type}, bytes={len(response.content)}.{status_note}{indicator_note}"
+    )
+
+
 def load_config() -> dict:
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f) or {}
@@ -137,6 +160,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
     timeout = (5, 12)
 
     response = session.get(listing_url, timeout=timeout, verify=False)
+    log_response_diagnostics(response, "ikwilhuren landing")
     response.raise_for_status()
 
     csrf_match = re.search(r'name="_token" value="([^"]+)"', response.text)
@@ -163,6 +187,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
         timeout=timeout,
         verify=False,
     )
+    log_response_diagnostics(location_response, "ikwilhuren location")
     location_response.raise_for_status()
     location_data = location_response.json()
     results = location_data.get("results") or []
@@ -181,6 +206,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
             timeout=timeout,
             verify=False,
         )
+        log_response_diagnostics(geo_response, "ikwilhuren geo")
         geo_response.raise_for_status()
         location = geo_response.json() if isinstance(geo_response.json(), dict) else {"weergavenaam": city_filter}
 
@@ -201,6 +227,7 @@ def fetch_ikwilhuren_listings(site: dict) -> list[dict]:
         timeout=timeout,
         verify=False,
     )
+    log_response_diagnostics(search_response, "ikwilhuren listings")
     search_response.raise_for_status()
     return fetch_listings(site, html=search_response.text)
 
@@ -228,6 +255,7 @@ def fetch_listings_api(site: dict) -> list[dict]:
         resp = requests.get(api_url, params=payload, headers=request_headers, timeout=20)
     else:
         resp = requests.post(api_url, json=payload, headers=request_headers, timeout=20)
+    log_response_diagnostics(resp, f"{site.get('name', 'api')} API")
     resp.raise_for_status()
     data = resp.json()
 

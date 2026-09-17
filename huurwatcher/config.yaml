@@ -83,7 +83,7 @@ sites:
     base_url: "https://ikwilhuren.nu"
     filters:
       city: "Amsterdam"
-      max_price: 1750
+      max_price: 1800
       min_rooms: null
 
   - name: vanderlinden
@@ -98,7 +98,7 @@ sites:
     base_url: "https://www.vanderlinden.nl"
     filters:
       city: "Amsterdam"
-      max_price: 1750
+      max_price: 1800
       min_rooms: null
 
   - name: schep
@@ -115,7 +115,7 @@ sites:
     base_url: "https://zoeken.schepvastgoedmanagers.nl"
     filters:
       city: "Amsterdam"
-      max_price: 1750
+      max_price: 1800
       min_rooms: null
 
   - name: rebo
@@ -137,7 +137,7 @@ sites:
     url_prefix: "nl"
     filters:
       city: "Amsterdam"
-      max_price: 1750
+      max_price: 1800
       min_rooms: null
 
   - name: mijndak

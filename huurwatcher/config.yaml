@@ -140,6 +140,21 @@ sites:
       max_price: 1800
       min_rooms: null
 
+  - name: livresidential
+    enabled: true
+    listing_url: "https://livresidential.nl/huurwoningen/amsterdam?range%5Bprice%5D=500%3A2000&refinementList%5Bcity%5D%5B0%5D=Amsterdam"
+    listing_selector: "a[href*='/huurwoningen/amsterdam/amsterdam/']"
+    title_selector: "h3"
+    price_selector: "p.mt-3"
+    city_selector: "p.text-base.leading-6.text-c-500"
+    link_selector: "a[href]"
+    link_attr: "href"
+    base_url: "https://livresidential.nl"
+    filters:
+      city: "Amsterdam"
+      max_price: 1800
+      min_rooms: null
+
   - name: mijndak
     enabled: false
     # De openbare pagina toont momenteel geen aanbod zonder inloggen; de

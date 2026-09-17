@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import yaml
 from bs4 import BeautifulSoup
 
 import scraper
@@ -298,3 +299,46 @@ def test_fetch_rebo_listings_from_algolia():
     assert items[0]["price"] == 1350.0
     assert items[0]["city"] == "Amsterdam"
     assert items[0]["url"] == "https://example.com/nl/aanbod/testwoning-3"
+
+
+def test_livresidential_site_parses_and_is_configured():
+    html = """
+      <div class="w-full mt-12 grid gap-5">
+        <a class="flex flex-col rounded hover:shadow border" href="https://livresidential.nl/huurwoningen/amsterdam/amsterdam/karspeldreef-4-c110-1101cj-amsterdam">
+          <h3>Karspeldreef 4 C110 1101CJ Amsterdam</h3>
+          <p class="text-base leading-6 text-c-500">1101CJ Amsterdam</p>
+          <p class="mt-3 text-base leading-5 font-medium text-c-700">€ 1.358 per maand (excl.)</p>
+        </a>
+        <a class="flex flex-col rounded hover:shadow border" href="https://livresidential.nl/huurwoningen/amsterdam/amsterdam/overtoom-443-3-1054kg-amsterdam">
+          <h3>Overtoom 443 3 1054KG Amsterdam</h3>
+          <p class="text-base leading-6 text-c-500">1054KG Amsterdam</p>
+          <p class="mt-3 text-base leading-5 font-medium text-c-700">€ 2.300 per maand (excl.)</p>
+        </a>
+      </div>
+    """
+
+    site = {
+        "name": "livresidential",
+        "listing_url": "https://livresidential.nl/huurwoningen/amsterdam?range%5Bprice%5D=500%3A2000&refinementList%5Bcity%5D%5B0%5D=Amsterdam",
+        "base_url": "https://livresidential.nl",
+        "listing_selector": "a[href*='/huurwoningen/amsterdam/amsterdam/']",
+        "title_selector": "h3",
+        "price_selector": "p.mt-3",
+        "city_selector": "p.text-base.leading-6.text-c-500",
+        "link_selector": "a[href]",
+        "link_attr": "href",
+        "filters": {"city": "Amsterdam", "max_price": 1800},
+    }
+
+    items = scraper.fetch_listings(site, html=html)
+
+    assert len(items) == 2
+    assert items[0]["title"] == "Karspeldreef 4 C110 1101CJ Amsterdam"
+    assert items[0]["price"] == 1358.0
+    assert items[0]["city"] == "1101CJ Amsterdam"
+    assert scraper.passes_filters(items[0], site["filters"]) is True
+
+    with open("config.yaml", "r", encoding="utf-8") as fh:
+        config = yaml.safe_load(fh)
+
+    assert any(site_def.get("name") == "livresidential" and site_def.get("enabled") is True for site_def in config.get("sites", []))
